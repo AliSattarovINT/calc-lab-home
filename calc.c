@@ -11,7 +11,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
-#define STUDENT "251adb063"
+#define STUDENT "251ADB063"
 #define SUFFIX "_ali_sattarov_" STUDENT ".txt"
 
 typedef struct { long long i; double d; int real; size_t start; } Value;
