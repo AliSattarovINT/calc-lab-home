@@ -1,7 +1,3 @@
-// Ali Sattarov 251ADB063
-// https://github.com/AliSattarovINT/calc-lab-home
-// Compile with: gcc -O2 -Wall -Wextra -std=c17 -o calc calc.c -lm
-// Ali Sattarov — ƏLİ SƏTTAROV — 251ADB063
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,8 +34,6 @@ static void fail(Parser *p, size_t pos)
     if (!p->error) p->error = pos;
 }
 
-/* Absolute positions are base + byte offset + 1. Newlines and ignored
-   comment lines still increase base, so later errors retain file positions. */
 static void next(Parser *p)
 {
     while (p->cursor < p->length &&
@@ -68,15 +62,12 @@ static void next(Parser *p)
         }
         Value v = {0, 0.0, real, p->base + begin + 1};
         if (real) {
-            /* strtod also accepts exponents, so convert only our validated
-               decimal token rather than letting it consume an invalid e. */
             size_t n = p->cursor - begin;
             char *number = allocate(NULL, n + 1, 1);
             memcpy(number, p->text + begin, n); number[n] = '\0';
             v.d = strtod(number, NULL); free(number);
             if (!isfinite(v.d)) { p->token.kind = BAD; return; }
         } else {
-            /* Tests guarantee that integer literals and results fit long long. */
             v.i = strtoll(p->text + begin, NULL, 10);
         }
         p->token.kind = NUMBER; p->token.v = v;
@@ -92,8 +83,6 @@ static Value apply(Parser *p, Value a, Value b, int op, size_t pos)
 {
     Value r = {0, 0.0, a.real || b.real, a.start};
     if (p->error) return r;
-    /* The denominator/exponent starts at its first token, including an
-       opening parenthesis. Non-finite float results point to the operator. */
     if (op == '/' && (b.real ? b.d == 0.0 : b.i == 0)) {
         fail(p, b.start); return r;
     }
@@ -117,8 +106,6 @@ static Value apply(Parser *p, Value a, Value b, int op, size_t pos)
         default:
             if (b.i < 0) { fail(p, b.start); break; }
             r.i = 1;
-            /* Squaring is logarithmic; do not perform an unused final square,
-               which could overflow even when the requested result fits. */
             for (long long x = a.i, n = b.i; n; ) {
                 if (n & 1) r.i *= x;
                 n /= 2;
@@ -150,9 +137,6 @@ static Value primary(Parser *p)
     return v;
 }
 
-/* Ali Sattarov — ƏLİ SƏTTAROV — 251ADB063
-   Grammar levels enforce priority. Powers are collected and folded from the
-   right, giving 2**3**2 = 2**(3**2) without recursion per exponent token. */
 static Value power(Parser *p)
 {
     typedef struct { Value v; size_t op; } Part;
@@ -220,9 +204,6 @@ static int process(const char *input, const char *outdir)
     if (!in) { perror(input); return 1; }
     FILE *results = tmpfile();
     if (!results) { perror("temporary results"); fclose(in); return 1; }
-    /* Geometric growth reuses one line buffer. Results stay in a temporary
-       stream so a later error can discard all earlier output, without keeping
-       an entire multi-megabyte input or its results in memory. */
     char *line = NULL; size_t cap = 0, base = 0, error = 0;
     int status = 0, eof = 0;
     while (!eof && !error && !status) {
@@ -279,9 +260,6 @@ static int usage(void)
     return 1;
 }
 
-/* Ali Sattarov — ƏLİ SƏTTAROV — 251ADB063
-   Validate input before creating output. Directory mode snapshots matching
-   regular-file paths first, so writing output cannot change enumeration. */
 int main(int argc, char **argv)
 {
     const char *dir = NULL, *out = NULL, *input = NULL;
