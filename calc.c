@@ -9,7 +9,8 @@
 
 #define STUDENT "251ADB063"
 #define SUFFIX "_ali_sattarov_" STUDENT ".txt"
-
+//Ali Sattarov - Ελληνική
+//Έχει κατανοήσει βασικά και κρίσιμα
 typedef struct { long long i; double d; int real; size_t start; } Value;
 typedef struct { int kind; size_t pos; Value v; } Token;
 enum { END = 256, NUMBER, POWER, BAD };
@@ -18,7 +19,8 @@ typedef struct {
     size_t length, cursor, base, error;
     Token token;
 } Parser;
-
+//Ελληνική
+// Allocateee memory and stop if it fail
 static void *allocate(void *old, size_t count, size_t size)
 {
     if (count > (size_t)-1 / size) {
@@ -70,6 +72,8 @@ static void next(Parser *p)
         } else {
             v.i = strtoll(p->text + begin, NULL, 10);
         }
+        // STORES the number in the current token.
+        //Ελληνική
         p->token.kind = NUMBER; p->token.v = v;
     } else if (c == '*' && p->cursor < p->length &&
                p->text[p->cursor] == '*') {
@@ -115,9 +119,9 @@ static Value apply(Parser *p, Value a, Value b, int op, size_t pos)
     }
     return r;
 }
-
+// Reads numbers or expression in parentheses.
 static Value expression(Parser *p);
-
+//ΝΑΙ (στην Αγγλική)
 static Value primary(Parser *p)
 {
     Value v = {0, 0.0, 0, p->token.pos};
@@ -157,6 +161,7 @@ static Value power(Parser *p)
     }
     free(parts); return v;
 }
+//ΝΑΙ (στην Αγγλική)
 
 static Value term(Parser *p)
 {
@@ -176,8 +181,9 @@ static Value expression(Parser *p)
         next(p); Value rhs = term(p); v = apply(p, v, rhs, op, pos);
     }
     return v;
+    // Join folder path and file name.
 }
-
+//ΝΑΙ (στην Αγγλική)
 static char *join(const char *dir, const char *name)
 {
     size_t a = strlen(dir), b = strlen(name);
@@ -227,8 +233,10 @@ static int process(const char *input, const char *outdir)
                 int written = v.real ? fprintf(results, "%.15g\n", v.d) : fprintf(results, "%lld\n", v.i);
                 if (written < 0) { perror("temporary results"); status = 1; }
             }
+            // The next line start at updated byte position.
         }
         base += n + (c == '\n');
+        //στην Αγγλική
     }
     free(line);
     if (fclose(in)) { perror(input); status = 1; }
@@ -256,10 +264,13 @@ static int process(const char *input, const char *outdir)
 
 static int usage(void)
 {
+    // Read program option and process  input file.
+    //στην Αγγλική
+
     fputs("Usage: calc [-d DIR | --dir DIR] [-o OUTDIR | --output-dir OUTDIR] [input.txt]\n", stderr);
     return 1;
 }
-
+//στην Αγγλική
 int main(int argc, char **argv)
 {
     const char *dir = NULL, *out = NULL, *input = NULL;
@@ -295,6 +306,8 @@ int main(int argc, char **argv)
             if (!S_ISREG(st.st_mode)) { free(path); continue; }
             if (count == capacity) { capacity = capacity ? capacity * 2 : 16; files = allocate(files, capacity, sizeof *files); }
             files[count++] = path;
+    //στην Αγγλική
+
         }
         if (closedir(dp)) { perror(dir); scan_error = 1; }
         if (scan_error) { for (size_t i = 0; i < count; ++i) free(files[i]); free(files); return 1; }
@@ -305,6 +318,8 @@ int main(int argc, char **argv)
         default_out = allocate(NULL, strlen(stem) + sizeof "_ali_" STUDENT, 1);
         strcpy(default_out, stem); strcat(default_out, "_ali_" STUDENT);
         free(stem); out = default_out;
+        //στην Αγγλική
+
     }
     int status = 0;
     if (mkdir(out, 0777) && errno != EEXIST) { perror(out); status = 1; }
